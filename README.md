@@ -21,7 +21,13 @@ After that, In a terminal we have to install Django, Django restframework, Simpl
 
       $pip install django dajngorestframework djangorestframework-simplejwt
 
-Then cd Mentalhealth and runserver
+Run django migrations command for creating table.  
+
+    $ python manage.py migrate
+
+Fill Questions Table, Disorder Table and Disordersave Table through admin panel.
+
+Then cd Mentalhealth and runserver.
 
        $ python manage.py runserver
 
