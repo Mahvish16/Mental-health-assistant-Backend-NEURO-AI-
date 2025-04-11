@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import RegisterUser, Questions, Response, Disorder, DisorderSave
+from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 
 class RegisterSerializer(serializers.ModelSerializer):
     password= serializers.CharField(write_only=True)
@@ -22,6 +23,41 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
     password = serializers.CharField(max_length=128, write_only=True)
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()
+
+    default_error_messages={
+        'bad_token': ('Token is invalid or expired')
+    }
+
+    def validate(self, attrs):
+        self.token = attrs['refresh']
+        return attrs
+    
+    def save(self,**kwargs):
+        try:
+            RefreshToken(self.token).blacklist()
+        except TokenError:
+            self.fail('bad token')
+
+
+class ResetPasswordRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField(required = True)
+
+class ResetPasswordSerializer(serializers.Serializer):
+    password = serializers.RegexField(
+        regex=r'^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$',
+        write_only=True,
+        error_messages={'invalid': ('Password must be at least 8 characters long with at least one capital letter and symbol')})
+    confirmpassword = serializers.CharField(write_only=True, required=True)
+    def validate(self, data):
+        if data['password'] != data['confirmpassword']:
+            raise serializers.ValidationError("Passwords do not match")
+        return data
+
+
+            
 
 class QuestionsSerializer(serializers.Serializer):
     class Meta:

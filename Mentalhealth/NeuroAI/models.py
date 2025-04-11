@@ -63,6 +63,12 @@ class RegisterUser(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.name
     
+
+class PasswordReset(models.Model):
+    email = models.EmailField(null=True)
+    token = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
 class Questions (models.Model):
     question = models.CharField(max_length=100)
     
