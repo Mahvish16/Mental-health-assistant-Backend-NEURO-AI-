@@ -16,9 +16,23 @@ from rest_framework.exceptions import ValidationError
 
 
 # Create your views here.
+# class RegisterView(generics.CreateAPIView):
+#     queryset = RegisterUser.objects.all()
+#     serializer_class = RegisterSerializer
 class RegisterView(generics.CreateAPIView):
-    queryset = RegisterUser.objects.all()
     serializer_class = RegisterSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data= request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def get(self,request, *args, **kwargs):
+        user = request.user
+        if not user.is_authenticated:
+            return Response ({"error": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+        serializer = self.get_serializer(user)
+        return Response(serializer.data, status= status.HTTP_200_OK)
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
