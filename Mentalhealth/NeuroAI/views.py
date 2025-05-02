@@ -4,7 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework.views import APIView
 from .models import RegisterUser, Questions, Response as ResponseTable , DisorderSave,Disorder,PasswordReset
-from .serializers import RegisterSerializer,LoginSerializer, QuestionsSerializer, ResponseSerializer,BulkResponseSerializer, DisorderSerializer, LogoutSerializer,ResetPasswordRequestSerializer,ResetPasswordSerializer
+from .serializers import RegisterSerializer,LoginSerializer, QuestionsSerializer, ResponseSerializer,BulkResponseSerializer, DisorderSerializer, LogoutSerializer,ResetPasswordRequestSerializer,ResetPasswordSerializer,UserProfileSerializer
 from django.contrib.auth import authenticate
 from rest_framework.response import Response 
 from rest_framework import status,permissions
@@ -27,12 +27,13 @@ class RegisterView(generics.CreateAPIView):
             serializer.save()
             return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
-    def get(self,request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         user = request.user
         if not user.is_authenticated:
-            return Response ({"error": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
-        serializer = self.get_serializer(user)
-        return Response(serializer.data, status= status.HTTP_200_OK)
+            return Response({"error": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        profile_serializer = UserProfileSerializer(user)
+        return Response(profile_serializer.data, status=status.HTTP_200_OK)
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
